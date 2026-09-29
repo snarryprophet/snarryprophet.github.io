@@ -10,7 +10,7 @@ var CONFIG = {
   // Front-page picture (leave HERO_IMAGE empty "" to hide it)
   HERO_IMAGE: "cover.jpg",
   HERO_CAPTION: "",           // optional caption under the picture, e.g. "Art by …"
-  HERO_NEWSPAPER_LOOK: true   // true = slightly sepia "printed" look, false = original colours
+  HERO_NEWSPAPER_LOOK: true   // true = black & white "printed" look in the paper colours, false = original colours
 };
 /* ▲▲▲ end of settings ▲▲▲ */
 

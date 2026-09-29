@@ -24,7 +24,14 @@
     </div>
   </header>
 
-  <figure class="hero" id="hero" hidden></figure>
+  <div class="layout">
+    <main id="app"><div class="msg">The owls are delivering this week's edition…</div></main>
+
+    <aside class="sidebar">
+      <figure class="hero" id="hero" hidden></figure>
+      <section class="archive" id="archive"></section>
+    </aside>
+  </div>
   <script>
     (function(){
       var f = document.getElementById("hero");
@@ -38,8 +45,6 @@
       f.hidden = false;
     })();
   </script>
-
-  <main id="app"><div class="msg">The owls are delivering this week's edition…</div></main>
 
   <footer>The Weekly Snarry Prophet · a fan-run roundup · all works belong to their creators</footer>
 </div>
@@ -108,20 +113,20 @@
       '<span class="pg">Page '+(page+1)+' of '+n+'</span>'+
       '<button id="older" '+(page>=n-1?"disabled":"")+'>Older editions →</button></div>';
 
-    html += '<section class="archive"><div class="rubric">Past Editions</div>';
-    var last = "";
-    weeks.forEach(function(w,i){
-      var m = SP.monthLabel(w);
-      if(m !== last){ html += (last ? '</ul>' : '')+'<div class="month">'+SP.esc(m)+'</div><ul>'; last = m; }
-      var here = Math.floor(i / CONFIG.WEEKS_PER_PAGE) === page;
-      html += '<li class="'+(here?"current":"")+'"><a href="#'+SP.esc(w)+'"><span class="wt">'+SP.esc(SP.weekLabel(w))+' · '+SP.esc(SP.weekRange(w))+'</span>'+
-              '<span class="wc">'+byWeek[w].length+(byWeek[w].length===1?' entry':' entries')+'</span></a></li>';
-    });
-    html += '</ul></section>';
-
     app.innerHTML = html;
     document.getElementById("newer").onclick = function(){ location.hash = page-1 === 0 ? "p=1" : "p="+page; };
     document.getElementById("older").onclick = function(){ location.hash = "p="+(page+2); };
+
+    // Sidebar: Past Editions, grouped by month
+    var a = '<div class="rubric">Past Editions</div>', last = "";
+    weeks.forEach(function(w,i){
+      var m = SP.monthLabel(w);
+      if(m !== last){ a += (last ? '</ul>' : '')+'<div class="month">'+SP.esc(m)+'</div><ul>'; last = m; }
+      var here = Math.floor(i / CONFIG.WEEKS_PER_PAGE) === page, c = byWeek[w].length;
+      a += '<li class="'+(here?"current":"")+'"><a href="#'+SP.esc(w)+'"><span><span class="wt">'+SP.esc(SP.weekLabel(w))+'</span>'+
+           '<span class="wr">'+SP.esc(SP.weekRange(w))+'</span></span><span class="wc">'+c+(c===1?' entry':' entries')+'</span></a></li>';
+    });
+    document.getElementById("archive").innerHTML = a + '</ul>';
   }
 })();
 </script>
