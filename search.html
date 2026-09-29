@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search the Archive · The Weekly Snarry Prophet</title>
+<meta name="description" content="Search every Snarry fic, WIP update and artwork from past editions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="common.js"></script>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="ears"><span>All the Snarry that's fit to print</span><span>Published every week</span></div>
+    <h1><a href="index.html">The Weekly Snarry Prophet</a></h1>
+    <div class="motto">Fics, WIPs, art &amp; assorted mischief — gathered in one place</div>
+    <div class="dateline">
+      <span id="today"></span>
+      <nav><a href="index.html">Front Page</a><a href="search.html" class="active">Search the Archive</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <input id="q" class="searchbox" type="search" placeholder="Search titles, authors, notes…" aria-label="Search the archive">
+    <div class="filters">
+      <select data-col="Type"     aria-label="Type"><option value="">All types</option></select>
+      <select data-col="Rating"   aria-label="Rating"><option value="">All ratings</option></select>
+      <select data-col="Status"   aria-label="Status"><option value="">Any status</option></select>
+      <select data-col="Length"   aria-label="Length"><option value="">Any length</option></select>
+      <select data-col="Setting"  aria-label="Setting"><option value="">Any setting</option></select>
+      <select data-col="Platform" aria-label="Platform"><option value="">All platforms</option></select>
+      <select data-col="Week"     aria-label="Week"><option value="">All weeks</option></select>
+      <select id="sort" aria-label="Sort">
+        <option value="new">Newest first</option>
+        <option value="old">Oldest first</option>
+        <option value="title">Title A–Z</option>
+        <option value="words">Longest first</option>
+      </select>
+    </div>
+    <div class="bar"><span id="count">Loading…</span><button class="linkbtn" id="reset">Clear filters</button></div>
+    <div class="rubric">Results</div>
+    <div id="list" class="columns"></div>
+    <div id="msg" class="msg">Searching the archive…</div>
+    <button class="more" id="more" hidden>Show more</button>
+  </main>
+
+  <footer>The Weekly Snarry Prophet · a fan-run roundup · all works belong to their creators</footer>
+</div>
+
+<script>
+(function(){
+  var rows = [], shown = CONFIG.SEARCH_PAGE_SIZE;
+  var $ = function(id){ return document.getElementById(id); };
+  var selects = Array.prototype.slice.call(document.querySelectorAll("select[data-col]"));
+
+  SP.load(function(data){
+    rows = data;
+    selects.forEach(function(sel){
+      var col = sel.getAttribute("data-col"), seen = {};
+      rows.forEach(function(r){ if(r[col]) seen[r[col]] = true; });
+      var vals = Object.keys(seen).sort(); if(col === "Week") vals.reverse();
+      vals.forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = col==="Week" ? SP.weekLabel(v)+" ("+v.slice(0,4)+")" : v; sel.appendChild(o); });
+      sel.hidden = !vals.length;
+    });
+    render();
+  }, function(){
+    $("msg").textContent = "The owl got lost on the way. Please try again in a moment."; $("count").textContent = "";
+  });
+
+  function results(){
+    var words = $("q").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    var out = rows.filter(function(r){
+      for(var i=0;i<selects.length;i++){ var s = selects[i]; if(s.value && r[s.getAttribute("data-col")] !== s.value) return false; }
+      if(!words.length) return true;
+      var hay = [r.Title, r["Author / Artist"], r.Notes, r["Tags (comma-separated)"], r.Setting, r.Type].join(" ").toLowerCase();
+      return words.every(function(w){ return hay.indexOf(w) !== -1; });
+    });
+    var s = $("sort").value;
+    out.sort(function(a,b){
+      if(s === "title") return a.Title.localeCompare(b.Title);
+      if(s === "words") return SP.num(b.Words) - SP.num(a.Words);
+      var d = (a.Added||"").localeCompare(b.Added||""); return s === "old" ? d : -d;
+    });
+    return out;
+  }
+
+  function render(){
+    var list = results();
+    $("count").textContent = list.length + (list.length === 1 ? " entry found" : " entries found");
+    $("list").innerHTML = list.slice(0, shown).map(function(r){ return SP.item(r,{showKind:true, showLength:true, showAdded:true}); }).join("");
+    $("msg").textContent = list.length ? "" : "Nothing matches. Try fewer filters.";
+    $("msg").hidden = !!list.length;
+    $("more").hidden = list.length <= shown;
+  }
+  function fresh(){ shown = CONFIG.SEARCH_PAGE_SIZE; render(); }
+
+  var t; $("q").addEventListener("input", function(){ clearTimeout(t); t = setTimeout(fresh, 150); });
+  selects.concat([$("sort")]).forEach(function(s){ s.addEventListener("change", fresh); });
+  $("more").addEventListener("click", function(){ shown += CONFIG.SEARCH_PAGE_SIZE; render(); });
+  $("reset").addEventListener("click", function(){ $("q").value = ""; selects.forEach(function(s){ s.value = ""; }); $("sort").value = "new"; fresh(); });
+})();
+</script>
+</body>
+</html>

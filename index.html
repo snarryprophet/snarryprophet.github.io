@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Weekly Snarry Prophet</title>
+<meta name="description" content="A weekly roundup of everything Snarry: new fics, WIP updates, art and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="common.js"></script>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="ears"><span>All the Snarry that's fit to print</span><span>Published every week</span></div>
+    <h1><a href="index.html">The Weekly Snarry Prophet</a></h1>
+    <div class="motto">Fics, WIPs, art &amp; assorted mischief — gathered in one place</div>
+    <div class="dateline">
+      <span id="today"></span>
+      <nav><a href="index.html" class="active">Front Page</a><a href="search.html">Search the Archive</a></nav>
+    </div>
+  </header>
+
+  <main id="app"><div class="msg">The owls are delivering this week's edition…</div></main>
+
+  <footer>The Weekly Snarry Prophet · a fan-run roundup · all works belong to their creators</footer>
+</div>
+
+<script>
+(function(){
+  // ▼ Sections of each weekly edition, in order. Each entry goes into the FIRST section whose rule matches.
+  var SECTIONS = [
+    { title:"One-shots & Completed Fics", test:function(r){ return r.Type==="Fic" && /^(Oneshot|Complete)$/i.test(r.Status); } },
+    { title:"Ongoing WIPs",               test:function(r){ return r.Type==="WIP Update" || r.Type==="Fic"; } },
+    { title:"Art",                        test:function(r){ return r.Type==="Art"; } },
+    { title:"Miscellaneous",              test:function(){ return true; }, showKind:true }  // meta, recs, Reddit, fests, podfic…
+  ];
+
+  var app = document.getElementById("app");
+  var byWeek = {}, weeks = [], page = 0;
+
+  SP.load(function(rows){
+    rows.forEach(function(r){ if(r.Week) (byWeek[r.Week] = byWeek[r.Week] || []).push(r); });
+    weeks = Object.keys(byWeek).sort().reverse();
+    if(!weeks.length){ app.innerHTML = '<div class="msg">The first edition is still at the printers — check back soon!</div>'; return; }
+    fromHash();
+    window.addEventListener("hashchange", fromHash);
+  }, function(){
+    app.innerHTML = '<div class="msg">The owl got lost on the way. Please try again in a moment.</div>';
+  });
+
+  function pages(){ return Math.ceil(weeks.length / CONFIG.WEEKS_PER_PAGE); }
+
+  // URL #p=2 → page 2 ; #2026-W38 → the page containing that week, scrolled to it
+  function fromHash(){
+    var h = decodeURIComponent(location.hash.slice(1)), target = null;
+    var mp = /^p=(\d+)$/.exec(h);
+    if(mp) page = Math.min(Math.max(+mp[1]-1,0), pages()-1);
+    else if(weeks.indexOf(h) !== -1){ page = Math.floor(weeks.indexOf(h) / CONFIG.WEEKS_PER_PAGE); target = h; }
+    else page = 0;
+    render();
+    var el = target && document.getElementById(target);
+    if(el) el.scrollIntoView(); else if(h) window.scrollTo(0,0);
+  }
+
+  function edition(w, isLatest){
+    var items = byWeek[w].slice().sort(function(a,b){ return (b.Added||"").localeCompare(a.Added||""); });
+    var buckets = SECTIONS.map(function(){ return []; });
+    items.forEach(function(r){ for(var i=0;i<SECTIONS.length;i++){ if(SECTIONS[i].test(r)){ buckets[i].push(r); break; } } });
+    var no = weeks.length - weeks.indexOf(w);   // No. 1 = the very first edition
+
+    var html = '<section class="edition" id="'+SP.esc(w)+'">'+
+      '<div class="kicker">'+(isLatest ? "Latest edition · " : "")+'Vol. I · No. '+no+'</div>'+
+      '<h2 class="headline">'+SP.esc(SP.weekLabel(w))+' Edition</h2>'+
+      '<p class="standfirst">'+SP.esc(SP.weekRange(w))+' · '+items.length+(items.length===1?" entry":" entries")+'</p>';
+    SECTIONS.forEach(function(s,i){
+      if(!buckets[i].length) return;
+      html += '<div class="rubric">'+SP.esc(s.title)+' <span class="n">('+buckets[i].length+')</span></div>'+
+              '<div class="columns">'+buckets[i].map(function(r){ return SP.item(r,{showKind:s.showKind}); }).join("")+'</div>';
+    });
+    return html + '</section>';
+  }
+
+  function render(){
+    var n = pages(), start = page * CONFIG.WEEKS_PER_PAGE;
+    var html = weeks.slice(start, start + CONFIG.WEEKS_PER_PAGE).map(function(w,i){ return edition(w, start+i===0); }).join("");
+
+    html += '<div class="pager">'+
+      '<button id="newer" '+(page===0?"disabled":"")+'>← Newer editions</button>'+
+      '<span class="pg">Page '+(page+1)+' of '+n+'</span>'+
+      '<button id="older" '+(page>=n-1?"disabled":"")+'>Older editions →</button></div>';
+
+    html += '<section class="archive"><div class="rubric">Past Editions</div>';
+    var last = "";
+    weeks.forEach(function(w,i){
+      var m = SP.monthLabel(w);
+      if(m !== last){ html += (last ? '</ul>' : '')+'<div class="month">'+SP.esc(m)+'</div><ul>'; last = m; }
+      var here = Math.floor(i / CONFIG.WEEKS_PER_PAGE) === page;
+      html += '<li class="'+(here?"current":"")+'"><a href="#'+SP.esc(w)+'"><span class="wt">'+SP.esc(SP.weekLabel(w))+' · '+SP.esc(SP.weekRange(w))+'</span>'+
+              '<span class="wc">'+byWeek[w].length+(byWeek[w].length===1?' entry':' entries')+'</span></a></li>';
+    });
+    html += '</ul></section>';
+
+    app.innerHTML = html;
+    document.getElementById("newer").onclick = function(){ location.hash = page-1 === 0 ? "p=1" : "p="+page; };
+    document.getElementById("older").onclick = function(){ location.hash = "p="+(page+2); };
+  }
+})();
+</script>
+</body>
+</html>
