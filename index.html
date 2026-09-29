@@ -54,6 +54,7 @@
   // ▼ Sections of each weekly edition, in order. Each entry goes into the FIRST section whose rule matches.
   var SECTIONS = [
     { title:"One-shots & Completed Fics", test:function(r){ return r.Type==="Fic" && /^(Oneshot|Complete)$/i.test(r.Status); } },
+    { title:"Completed WIPs",             test:function(r){ return r.Type==="WIP Update" && /^Complete$/i.test(r.Status); } },
     { title:"Ongoing WIPs",               test:function(r){ return r.Type==="WIP Update" || r.Type==="Fic"; } },
     { title:"Art",                        test:function(r){ return r.Type==="Art"; } },
     { title:"Miscellaneous",              test:function(){ return true; }, showKind:true }  // meta, recs, Reddit, fests, podfic…
