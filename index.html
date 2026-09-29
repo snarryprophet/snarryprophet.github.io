@@ -79,7 +79,7 @@
     SECTIONS.forEach(function(s,i){
       if(!buckets[i].length) return;
       html += '<div class="rubric">'+SP.esc(s.title)+' <span class="n">('+buckets[i].length+')</span></div>'+
-              '<div class="columns">'+buckets[i].map(function(r){ return SP.item(r,{showKind:s.showKind}); }).join("")+'</div>';
+              '<div class="stack">'+buckets[i].map(function(r){ return SP.item(r,{showKind:s.showKind, oneLine:true}); }).join("")+'</div>';
     });
     return html + '</section>';
   }

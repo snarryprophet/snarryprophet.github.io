@@ -54,7 +54,8 @@ var SP = (function(){
     opt = opt || {};
     var rt = RATING[r.Rating], url = safeUrl(r.Link), t = esc(r.Title), chips = [];
     if(opt.showKind && r.Type) chips.push('<span class="chip kind">'+esc(r.Type)+'</span>');
-    if(r.Chapters) chips.push('<span class="chip">Ch. '+esc(r.Chapters)+'</span>');
+    var ongoing = r.Type === "WIP Update" || /^(WIP|Series)/i.test(r.Status);
+    if(r.Chapters && ongoing) chips.push('<span class="chip">Ch. '+esc(r.Chapters)+'</span>');
     if(r.Words) chips.push('<span class="chip">'+num(r.Words).toLocaleString("en")+' words</span>');
     if(r.Status && r.Type!=="Art") chips.push('<span class="chip">'+esc(r.Status)+'</span>');
     if(opt.showLength && r.Length) chips.push('<span class="chip">'+esc(r.Length)+'</span>');
@@ -62,7 +63,18 @@ var SP = (function(){
     if(r.Platform && r.Platform!=="AO3") chips.push('<span class="chip">'+esc(r.Platform)+'</span>');
     var w = r["Archive Warnings"];
     if(w && !/^No Archive Warnings/i.test(w)) chips.push('<span class="chip warn">'+esc(w)+'</span>');
-    (r["Tags (comma-separated)"]||"").split(",").forEach(function(tag){ tag = tag.trim(); if(tag) chips.push('<span class="chip">'+esc(tag)+'</span>'); });
+    if(opt.showTags) (r["Tags (comma-separated)"]||"").split(",").forEach(function(tag){ tag = tag.trim(); if(tag) chips.push('<span class="chip">'+esc(tag)+'</span>'); });
+
+    if(opt.oneLine){
+      // Everything in one row: rating · title · by author · chips (wraps only on narrow screens)
+      return '<article class="item line'+(rt?' rated':'')+'"><div class="row">'+
+        (rt ? '<span class="rating" style="background:var('+rt[1]+')" title="'+esc(r.Rating)+'">'+rt[0]+'</span>' : '')+
+        '<h3>'+(url ? '<a href="'+esc(url)+'" target="_blank" rel="noopener">'+t+'</a>' : t)+'</h3>'+
+        (r["Author / Artist"] ? '<span class="by">by '+esc(r["Author / Artist"])+'</span>' : '')+
+        chips.join("")+'</div>'+
+        (r.Notes ? '<p class="notes">'+esc(r.Notes)+'</p>' : '')+
+        '</article>';
+    }
 
     return '<article class="item"><div class="top">'+
       (rt ? '<div class="rating" style="background:var('+rt[1]+')" title="'+esc(r.Rating)+'">'+rt[0]+'</div>' : '')+

@@ -50,6 +50,15 @@ a{color:var(--green)}
 .notes{margin:6px 0 0;font-size:15px}
 .added{font:12px "Inter",sans-serif;color:var(--muted);margin-top:5px}
 
+/* One-line entries on the front page, stacked under each other */
+.stack .item.line{padding:9px 0}
+.item.line .row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.item.line .rating{margin-top:0}
+.item.line h3{margin-right:2px}
+.item.line .by{margin-right:4px}
+.item.line .notes{margin:4px 0 0}
+.item.line.rated .notes{margin-left:30px}
+
 /* ---------- Pager & archive ---------- */
 .pager{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:8px 0;margin-top:6px;font:600 13px "Inter",sans-serif;text-transform:uppercase;letter-spacing:.08em}
 .pager button{background:none;border:none;font:inherit;color:var(--green);cursor:pointer;padding:4px 0;text-transform:inherit;letter-spacing:inherit}
