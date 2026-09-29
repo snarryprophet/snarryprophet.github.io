@@ -8,7 +8,7 @@ var CONFIG = {
   SEARCH_PAGE_SIZE: 25,  // results shown before "Show more"
 
   // Front-page picture (leave HERO_IMAGE empty "" to hide it)
-  HERO_IMAGE: "https://i.ibb.co/2j5sXRC/Untitled2-002.jpg",
+  HERO_IMAGE: "cover.jpg",
   HERO_CAPTION: "",           // optional caption under the picture, e.g. "Art by …"
   HERO_NEWSPAPER_LOOK: true   // true = slightly sepia "printed" look, false = original colours
 };
