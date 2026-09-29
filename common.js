@@ -5,7 +5,12 @@ var CONFIG = {
   // Published CSV link of the "Archive" sheet (File → Share → Publish to web → Archive → CSV)
   CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQlSMDPK4W2cFu4fQuNibWAva2bgpJNpODrDvonAanTH2aULkECtySdK-X8X1vhuC1FBr8MSCaZTBFn/pub?gid=1855533287&single=true&output=csv",
   WEEKS_PER_PAGE: 4,     // weekly editions shown per page on the front page
-  SEARCH_PAGE_SIZE: 25   // results shown before "Show more"
+  SEARCH_PAGE_SIZE: 25,  // results shown before "Show more"
+
+  // Front-page picture (leave HERO_IMAGE empty "" to hide it)
+  HERO_IMAGE: "https://i.ibb.co/2j5sXRC/Untitled2-002.jpg",
+  HERO_CAPTION: "",           // optional caption under the picture, e.g. "Art by …"
+  HERO_NEWSPAPER_LOOK: true   // true = slightly sepia "printed" look, false = original colours
 };
 /* ▲▲▲ end of settings ▲▲▲ */
 

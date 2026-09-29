@@ -24,6 +24,21 @@
     </div>
   </header>
 
+  <figure class="hero" id="hero" hidden></figure>
+  <script>
+    (function(){
+      var f = document.getElementById("hero");
+      if(!CONFIG.HERO_IMAGE) return;
+      var img = document.createElement("img");
+      img.src = CONFIG.HERO_IMAGE; img.alt = CONFIG.HERO_CAPTION || "The Weekly Snarry Prophet";
+      if(CONFIG.HERO_NEWSPAPER_LOOK) f.className = "hero printed";
+      f.appendChild(img);
+      if(CONFIG.HERO_CAPTION){ var c = document.createElement("figcaption"); c.textContent = CONFIG.HERO_CAPTION; f.appendChild(c); }
+      img.onerror = function(){ f.hidden = true; };
+      f.hidden = false;
+    })();
+  </script>
+
   <main id="app"><div class="msg">The owls are delivering this week's edition…</div></main>
 
   <footer>The Weekly Snarry Prophet · a fan-run roundup · all works belong to their creators</footer>

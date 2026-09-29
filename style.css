@@ -24,6 +24,13 @@ a{color:var(--green)}
 .dateline nav a:first-child{margin-left:0}
 .dateline nav a.active,.dateline nav a:hover{color:var(--green);text-decoration:underline;text-underline-offset:3px}
 
+/* ---------- Front-page picture ---------- */
+.hero{margin:22px auto 0;max-width:820px}
+.hero img{display:block;width:100%;height:clamp(180px,32vw,340px);object-fit:cover;object-position:center;
+  border:1px solid var(--ink);outline:1px solid var(--ink);outline-offset:4px;margin:5px 0}
+.hero.printed img{filter:sepia(.35) saturate(.75) contrast(1.06) brightness(.97);mix-blend-mode:multiply}
+.hero figcaption{margin-top:10px;font:italic 13px "Lora",serif;color:var(--muted);text-align:right}
+
 /* ---------- Edition (one week) ---------- */
 .edition{padding:26px 0 30px;border-bottom:3px double var(--rule)}
 .edition:last-of-type{border-bottom:none}
