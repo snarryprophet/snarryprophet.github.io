@@ -10,7 +10,13 @@ var CONFIG = {
   // Front-page picture (leave HERO_IMAGE empty "" to hide it)
   HERO_IMAGE: "cover.jpg",
   HERO_CAPTION: "",           // optional caption under the picture, e.g. "Art by …"
-  HERO_NEWSPAPER_LOOK: true   // true = black & white "printed" look in the paper colours, false = original colours
+  HERO_NEWSPAPER_LOOK: true,  // true = black & white "printed" look in the paper colours, false = original colours
+
+  // Sidebar box under the picture. Add more places by copying a { … } line.
+  FRIENDS_TITLE: "Friends of the Prophet",
+  FRIENDS: [
+    { name: "House of Snarry", text: "The Discord server for Snarry fans. Come say hi!", url: "https://discord.gg/YOUR-INVITE-LINK", button: "Join the server" }
+  ]
 };
 /* ▲▲▲ end of settings ▲▲▲ */
 
@@ -91,6 +97,22 @@ var SP = (function(){
       '</article>';
   }
 
+  // Sidebar "Friends of the Prophet" box
+  function friends(){
+    var list = (CONFIG.FRIENDS || []).filter(function(f){ return f && f.name; });
+    if(!list.length) return "";
+    return '<div class="rubric">'+esc(CONFIG.FRIENDS_TITLE || "Friends of the Prophet")+'</div>'+
+      list.map(function(f){
+        var url = safeUrl(f.url);
+        return '<div class="friend"><div class="fname">'+esc(f.name)+'</div>'+
+          (f.text ? '<p>'+esc(f.text)+'</p>' : '')+
+          (url ? '<a class="fbtn" href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(f.button || "Visit")+' →</a>' : '')+
+          '</div>';
+      }).join("");
+  }
+
+  function isEditorial(r){ return /^Editorial$/i.test(r.Type || ""); }
+
   // Today's date in the masthead
   function todayLine(){
     var d = new Date(), days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -100,5 +122,5 @@ var SP = (function(){
     var el = document.getElementById("today"); if(el) el.textContent = todayLine();
   });
 
-  return { load:load, esc:esc, num:num, item:item, weekStart:weekStart, weekRange:weekRange, weekLabel:weekLabel, monthLabel:monthLabel };
+  return { load:load, esc:esc, num:num, item:item, friends:friends, isEditorial:isEditorial, weekStart:weekStart, weekRange:weekRange, weekLabel:weekLabel, monthLabel:monthLabel };
 })();

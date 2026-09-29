@@ -104,7 +104,8 @@ footer{margin-top:40px;border-top:3px double var(--ink);padding-top:10px;text-al
   .layout{display:flex;flex-direction:column}
   .sidebar{display:contents}
   .hero{order:-1;margin:22px auto 0;max-width:480px;width:100%}
-  .archive{order:2;margin-top:34px;width:100%}
+  .friends{order:2;width:100%;margin-top:34px}
+  .archive{order:3;margin-top:34px;width:100%}
   .hero img{max-height:60vh;object-fit:cover}
 }
 @media (max-width:600px){
@@ -125,3 +126,27 @@ footer{margin-top:40px;border-top:3px double var(--ink);padding-top:10px;text-al
 .rules li{margin-bottom:8px}
 .contact{margin:34px 0 0;padding:18px;text-align:center;border-top:3px double var(--ink);border-bottom:3px double var(--ink)}
 .contact a{font:700 clamp(18px,4vw,24px) "Playfair Display",Georgia,serif;color:var(--green);word-break:break-word}
+
+/* ---------- Friends of the Prophet (sidebar) ---------- */
+.friends{margin-top:22px}
+.friends:empty{display:none}
+.friends .rubric{margin-top:0}
+.friend{border:1px solid var(--ink);outline:1px solid var(--ink);outline-offset:3px;margin:4px 4px 16px;padding:12px 14px;text-align:center;background:var(--paper-2)}
+.friend .fname{font:700 22px/1.1 "Playfair Display",Georgia,serif}
+.friend p{margin:6px 0 10px;font:italic 14px/1.45 "Lora",serif;color:var(--muted)}
+.fbtn{display:inline-block;padding:6px 14px;background:var(--green);color:#efe7cf;text-decoration:none;font:600 12px "Inter",sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.fbtn:hover{background:var(--ink)}
+
+/* ---------- Editorial at the top of an edition ---------- */
+.editorial{margin:18px 0 6px;padding:14px 0 4px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.ed-kicker{font:600 12px "Inter",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ed-title{font:italic 700 24px/1.2 "Playfair Display",Georgia,serif;margin:4px 0 8px}
+.editorial p{margin:0 0 10px;font-size:16.5px}
+.editorial p:first-of-type::first-letter{float:left;font:900 50px/.82 "Playfair Display",Georgia,serif;padding:5px 7px 0 0;color:var(--green)}
+.ed-sign{text-align:right;font:italic 15px "Lora",serif;color:var(--muted);margin-bottom:8px}
+
+/* RSS link under Past Editions */
+.rss{display:block;margin:16px 0 0;font:600 12px "Inter",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+.rss::before{content:"";display:inline-block;width:10px;height:10px;margin-right:7px;border-radius:2px;background:var(--m);vertical-align:0}
+footer a{color:inherit}
+@media (max-width:820px){ .rss{order:4;width:100%} }

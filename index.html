@@ -5,12 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Weekly Snarry Prophet</title>
 <meta name="description" content="A weekly roundup of everything Snarry: new fics, WIP updates, art and more.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="alternate" type="application/rss+xml" title="The Weekly Snarry Prophet" href="feed.xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script src="common.js?v=5"></script>
+<script src="common.js?v=6"></script>
 </head>
 <body>
 <div class="page">
@@ -29,10 +33,13 @@
 
     <aside class="sidebar">
       <figure class="hero" id="hero" hidden></figure>
+      <section class="friends" id="friends"></section>
       <section class="archive" id="archive"></section>
+      <a class="rss" href="feed.xml">Follow the Prophet via RSS</a>
     </aside>
   </div>
   <script>
+    document.getElementById("friends").innerHTML = SP.friends();
     (function(){
       var f = document.getElementById("hero");
       if(!CONFIG.HERO_IMAGE) return;
@@ -46,7 +53,7 @@
     })();
   </script>
 
-  <footer>The Weekly Snarry Prophet · a fan-run roundup · all works belong to their creators</footer>
+  <footer>The Weekly Snarry Prophet · a fan-run roundup · all works belong to their creators · <a href="feed.xml">RSS feed</a></footer>
 </div>
 
 <script>
@@ -87,8 +94,23 @@
     if(el) el.scrollIntoView(); else if(h) window.scrollTo(0,0);
   }
 
+  function entries(w){ return byWeek[w].filter(function(r){ return !SP.isEditorial(r); }); }
+
+  // Editorial = a row with Type "Editorial": Title is the headline, Notes is the text
+  function editorial(w){
+    var eds = byWeek[w].filter(SP.isEditorial);
+    if(!eds.length) return "";
+    return eds.map(function(r){
+      var paras = String(r.Notes||"").split(/\n+/).map(function(p){ return p.trim(); }).filter(Boolean);
+      return '<div class="editorial"><div class="ed-kicker">From the Editor</div>'+
+        (r.Title ? '<h3 class="ed-title">'+SP.esc(r.Title)+'</h3>' : '')+
+        paras.map(function(p){ return '<p>'+SP.esc(p)+'</p>'; }).join("")+
+        (r["Author / Artist"] ? '<div class="ed-sign">— '+SP.esc(r["Author / Artist"])+'</div>' : '')+'</div>';
+    }).join("");
+  }
+
   function edition(w, isLatest){
-    var items = byWeek[w].slice().sort(function(a,b){ return (b.Added||"").localeCompare(a.Added||""); });
+    var items = entries(w).sort(function(a,b){ return (b.Added||"").localeCompare(a.Added||""); });
     var buckets = SECTIONS.map(function(){ return []; });
     items.forEach(function(r){ for(var i=0;i<SECTIONS.length;i++){ if(SECTIONS[i].test(r)){ buckets[i].push(r); break; } } });
     var no = weeks.length - weeks.indexOf(w);   // No. 1 = the very first edition
@@ -96,7 +118,8 @@
     var html = '<section class="edition" id="'+SP.esc(w)+'">'+
       '<div class="kicker">'+(isLatest ? "Latest edition · " : "")+'Vol. I · No. '+no+'</div>'+
       '<h2 class="headline">'+SP.esc(SP.weekLabel(w))+' Edition</h2>'+
-      '<p class="standfirst">'+SP.esc(SP.weekRange(w))+' · '+items.length+(items.length===1?" entry":" entries")+'</p>';
+      '<p class="standfirst">'+SP.esc(SP.weekRange(w))+' · '+items.length+(items.length===1?" entry":" entries")+'</p>'+
+      editorial(w);
     SECTIONS.forEach(function(s,i){
       if(!buckets[i].length) return;
       html += '<div class="rubric">'+SP.esc(s.title)+' <span class="n">('+buckets[i].length+')</span></div>'+
@@ -123,7 +146,7 @@
     weeks.forEach(function(w,i){
       var m = SP.monthLabel(w);
       if(m !== last){ a += (last ? '</ul>' : '')+'<div class="month">'+SP.esc(m)+'</div><ul>'; last = m; }
-      var here = Math.floor(i / CONFIG.WEEKS_PER_PAGE) === page, c = byWeek[w].length;
+      var here = Math.floor(i / CONFIG.WEEKS_PER_PAGE) === page, c = entries(w).length;
       a += '<li class="'+(here?"current":"")+'"><a href="#'+SP.esc(w)+'"><span><span class="wt">'+SP.esc(SP.weekLabel(w))+'</span>'+
            '<span class="wr">'+SP.esc(SP.weekRange(w))+'</span></span><span class="wc">'+c+(c===1?' entry':' entries')+'</span></a></li>';
     });

@@ -5,12 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Search the Archive · The Weekly Snarry Prophet</title>
 <meta name="description" content="Search every Snarry fic, WIP update and artwork from past editions.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="alternate" type="application/rss+xml" title="The Weekly Snarry Prophet" href="feed.xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script src="common.js?v=5"></script>
+<script src="common.js?v=6"></script>
 </head>
 <body>
 <div class="page">
@@ -48,7 +52,7 @@
     <button class="more" id="more" hidden>Show more</button>
   </main>
 
-  <footer>The Weekly Snarry Prophet · a fan-run roundup · all works belong to their creators</footer>
+  <footer>The Weekly Snarry Prophet · a fan-run roundup · all works belong to their creators · <a href="feed.xml">RSS feed</a></footer>
 </div>
 
 <script>
@@ -58,7 +62,7 @@
   var selects = Array.prototype.slice.call(document.querySelectorAll("select[data-col]"));
 
   SP.load(function(data){
-    rows = data;
+    rows = data.filter(function(r){ return !SP.isEditorial(r); });
     selects.forEach(function(sel){
       var col = sel.getAttribute("data-col"), seen = {};
       rows.forEach(function(r){ if(r[col]) seen[r[col]] = true; });
