@@ -15,7 +15,7 @@ var CONFIG = {
   // Sidebar box under the picture. Add more places by copying a { … } line.
   FRIENDS_TITLE: "Friends of the Prophet",
   FRIENDS: [
-    { name: "House of Snarry", text: "The Discord server for Snarry fans. Come say hi!", url: "https://discord.gg/YOUR-INVITE-LINK", button: "Join the server" }
+    { name: "House of Snarry", text: "The Discord server for Snarry fans. Come say hi!", url: "https://discord.gg/23w8WCkuPn", button: "Join the server" }
   ]
 };
 /* ▲▲▲ end of settings ▲▲▲ */
