@@ -12,9 +12,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script src="common.js?v=6"></script>
+<script src="common.js?v=7"></script>
 </head>
 <body>
 <div class="page">
@@ -71,7 +71,7 @@
   var byWeek = {}, weeks = [], page = 0;
 
   SP.load(function(rows){
-    rows.forEach(function(r){ if(r.Week) (byWeek[r.Week] = byWeek[r.Week] || []).push(r); });
+    rows.forEach(function(r){ if(r.Week && !SP.isUpcoming(r.Week)) (byWeek[r.Week] = byWeek[r.Week] || []).push(r); });
     weeks = Object.keys(byWeek).sort().reverse();
     if(!weeks.length){ app.innerHTML = '<div class="msg">The first edition is still at the printers — check back soon!</div>'; return; }
     fromHash();
@@ -118,7 +118,7 @@
     var html = '<section class="edition" id="'+SP.esc(w)+'">'+
       '<div class="kicker">'+(isLatest ? "Latest edition · " : "")+'Vol. I · No. '+no+'</div>'+
       '<h2 class="headline">'+SP.esc(SP.weekLabel(w))+' Edition</h2>'+
-      '<p class="standfirst">'+SP.esc(SP.weekRange(w))+' · '+items.length+(items.length===1?" entry":" entries")+'</p>'+
+      '<p class="standfirst">'+(/W/.test(w) ? '' : 'Covering ')+SP.esc(SP.weekRange(w))+' · '+items.length+(items.length===1?" entry":" entries")+'</p>'+
       editorial(w);
     SECTIONS.forEach(function(s,i){
       if(!buckets[i].length) return;
@@ -147,7 +147,7 @@
       var m = SP.monthLabel(w);
       if(m !== last){ a += (last ? '</ul>' : '')+'<div class="month">'+SP.esc(m)+'</div><ul>'; last = m; }
       var here = Math.floor(i / CONFIG.WEEKS_PER_PAGE) === page, c = entries(w).length;
-      a += '<li class="'+(here?"current":"")+'"><a href="#'+SP.esc(w)+'"><span><span class="wt">'+SP.esc(SP.weekLabel(w))+'</span>'+
+      a += '<li class="'+(here?"current":"")+'"><a href="#'+SP.esc(w)+'"><span><span class="wt">'+SP.esc(SP.weekLabel(w).replace(/ [0-9]{4}$/,""))+'</span>'+
            '<span class="wr">'+SP.esc(SP.weekRange(w))+'</span></span><span class="wc">'+c+(c===1?' entry':' entries')+'</span></a></li>';
     });
     document.getElementById("archive").innerHTML = a + '</ul>';

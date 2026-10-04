@@ -12,9 +12,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:wght@700;900&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script src="common.js?v=6"></script>
+<script src="common.js?v=7"></script>
 </head>
 <body>
 <div class="page">
@@ -62,12 +62,12 @@
   var selects = Array.prototype.slice.call(document.querySelectorAll("select[data-col]"));
 
   SP.load(function(data){
-    rows = data.filter(function(r){ return !SP.isEditorial(r); });
+    rows = data.filter(function(r){ return !SP.isEditorial(r) && !SP.isUpcoming(r.Week); });
     selects.forEach(function(sel){
       var col = sel.getAttribute("data-col"), seen = {};
       rows.forEach(function(r){ if(r[col]) seen[r[col]] = true; });
       var vals = Object.keys(seen).sort(); if(col === "Week") vals.reverse();
-      vals.forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = col==="Week" ? SP.weekLabel(v)+" ("+v.slice(0,4)+")" : v; sel.appendChild(o); });
+      vals.forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = col==="Week" ? SP.editionName(v) : v; sel.appendChild(o); });
       sel.hidden = !vals.length;
     });
     render();

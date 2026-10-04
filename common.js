@@ -44,21 +44,43 @@ var SP = (function(){
     });
   }
 
-  // ISO week helpers: "2026-W40"
-  function weekStart(w){
-    var m = /^(\d{4})-W(\d{1,2})$/.exec(w||""); if(!m) return null;
-    var jan4 = new Date(Date.UTC(+m[1],0,4));
-    var d = new Date(jan4); d.setUTCDate(jan4.getUTCDate() - ((jan4.getUTCDay()+6)%7) + (+m[2]-1)*7);
-    return d;
+  // Edition helpers. The Week column holds either
+  //   "2026-10-04"  = the Sunday edition date; it covers the week Sunday 27 Sep – Saturday 3 Oct
+  //   "2026-W40"    = older ISO week format (Monday – Sunday), still understood
+  function addDays(d, n){ var x = new Date(d); x.setUTCDate(x.getUTCDate()+n); return x; }
+  function parts(w){
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(w||"");
+    if(m){ var ed = new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); return { kind:"date", edition:ed, from:addDays(ed,-7), to:addDays(ed,-1) }; }
+    m = /^(\d{4})-W(\d{1,2})$/.exec(w||"");
+    if(m){
+      var jan4 = new Date(Date.UTC(+m[1],0,4));
+      var mon = addDays(jan4, -((jan4.getUTCDay()+6)%7) + (+m[2]-1)*7);
+      return { kind:"iso", week:+m[2], edition:mon, from:mon, to:addDays(mon,6) };
+    }
+    return null;
   }
   function fmtDay(d, year){ return d.getUTCDate()+" "+MONTHS[d.getUTCMonth()].slice(0,3)+(year?" "+d.getUTCFullYear():""); }
+  function weekStart(w){ var p = parts(w); return p ? p.from : null; }
   function weekRange(w){
-    var s = weekStart(w); if(!s) return "";
-    var e = new Date(s); e.setUTCDate(s.getUTCDate()+6);
-    return fmtDay(s, s.getUTCFullYear()!==e.getUTCFullYear()) + " – " + fmtDay(e, true);
+    var p = parts(w); if(!p) return "";
+    return fmtDay(p.from, p.from.getUTCFullYear()!==p.to.getUTCFullYear()) + " – " + fmtDay(p.to, true);
   }
-  function weekLabel(w){ var m = /W(\d+)/.exec(w||""); return m ? "Week "+(+m[1]) : w; }
-  function monthLabel(w){ var s = weekStart(w); return s ? MONTHS[s.getUTCMonth()]+" "+s.getUTCFullYear() : "Undated"; }
+  // "4 October 2026" (or "Week 40" for the old format)
+  function weekLabel(w){
+    var p = parts(w); if(!p) return w || "";
+    return p.kind === "iso" ? "Week "+p.week : p.edition.getUTCDate()+" "+MONTHS[p.edition.getUTCMonth()]+" "+p.edition.getUTCFullYear();
+  }
+  // "4 October 2026 edition" / "Week 40" – used in search results and dropdowns
+  function editionName(w){ var p = parts(w); return p && p.kind === "date" ? weekLabel(w)+" edition" : weekLabel(w)+(p ? " ("+w.slice(0,4)+")" : ""); }
+  function monthLabel(w){ var p = parts(w); return p ? MONTHS[p.edition.getUTCMonth()]+" "+p.edition.getUTCFullYear() : "Undated"; }
+
+  // Today's date in Prague, as "2026-10-04"
+  function todayPrague(){
+    try { return new Date().toLocaleDateString("en-CA", { timeZone:"Europe/Prague" }); }
+    catch(e){ var d = new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
+  }
+  // An edition dated in the future (e.g. next Sunday) is still "at the printers" and is not shown on the front page yet
+  function isUpcoming(w){ var p = parts(w); return !!(p && p.kind === "date" && w > todayPrague()); }
 
   // One article in the paper
   function item(r, opt){
@@ -93,7 +115,7 @@ var SP = (function(){
       (r["Author / Artist"] ? '<div class="by">by '+esc(r["Author / Artist"])+'</div>' : '')+'</div></div>'+
       (chips.length ? '<div class="chips">'+chips.join("")+'</div>' : '')+
       (r.Notes ? '<p class="notes">'+esc(r.Notes)+'</p>' : '')+
-      (opt.showAdded && r.Added ? '<div class="added">Added '+esc(r.Added)+(r.Week?' · '+esc(weekLabel(r.Week)):'')+'</div>' : '')+
+      (opt.showAdded && r.Added ? '<div class="added">Added '+esc(r.Added)+(r.Week?' · '+esc(editionName(r.Week)):'')+'</div>' : '')+
       '</article>';
   }
 
@@ -122,5 +144,5 @@ var SP = (function(){
     var el = document.getElementById("today"); if(el) el.textContent = todayLine();
   });
 
-  return { load:load, esc:esc, num:num, item:item, friends:friends, isEditorial:isEditorial, weekStart:weekStart, weekRange:weekRange, weekLabel:weekLabel, monthLabel:monthLabel };
+  return { load:load, esc:esc, num:num, item:item, friends:friends, isEditorial:isEditorial, weekStart:weekStart, weekRange:weekRange, weekLabel:weekLabel, editionName:editionName, monthLabel:monthLabel, isUpcoming:isUpcoming };
 })();
