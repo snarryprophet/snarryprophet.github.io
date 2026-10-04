@@ -5,6 +5,7 @@ Runs on GitHub Actions (see .github/workflows/site.yml). Uses only the Python st
 The CSV link is read from common.js, so it only ever needs changing in one place.
 """
 import csv, datetime, html, io, re, sys, urllib.request
+from zoneinfo import ZoneInfo
 from email.utils import format_datetime
 from xml.sax.saxutils import escape
 
@@ -79,7 +80,7 @@ def item_xml(r):
         if para.strip():
             parts.append("<p>" + html.escape(para.strip()) + "</p>")
     if week:
-        parts.append('<p><a href="' + html.escape(site_link) + '">See the ' + html.escape(week) + " edition</a></p>")
+        parts.append('<p><a href="' + html.escape(site_link) + '">See it in the Prophet</a></p>')
 
     date = parse_date(r.get("Added", ""))
     guid = "|".join([link, r.get("Added", ""), r.get("Chapters", ""), r.get("Status", "")])
@@ -103,6 +104,8 @@ def main():
         print("WARNING: could not build feed:", e)
         return 0
 
+    today = datetime.datetime.now(ZoneInfo("Europe/Prague")).date().isoformat()
+    rows = [r for r in rows if not (re.match(r"^\d{4}-\d{2}-\d{2}$", r.get("Week", "")) and r["Week"] > today)]
     built = [item_xml(r) for r in rows]
     epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
     built.sort(key=lambda x: x[1] or epoch, reverse=True)
